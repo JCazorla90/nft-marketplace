@@ -315,10 +315,10 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 ## 📞 Contacto
 
-- Website: [https://bnpl-nft.com](https://bnpl-nft.com)
-- Twitter: [@bnpl_nft](https://twitter.com/bnpl_nft)
-- Discord: [Join our community](https://discord.gg/bnplnft)
-- Email: contact@bnpl-nft.com
+- Website: [Pendiente](·)
+- Twitter: [@JCazorla90](https://x.com/JCazorla90)
+- Discord: [Join our community](https://discord.gg/GPdUMtHNX)
+- Email: bnplnft@gmail.com
 
 ---
 
