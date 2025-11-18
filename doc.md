@@ -261,19 +261,4 @@ npm run build         # Build producción
 npm run preview       # Preview build
 ```
 
-## 🎯 Próximos Pasos
 
-1. Crear repositorio en GitHub
-2. Inicializar estructura de carpetas
-3. Configurar Anchor para smart contracts
-4. Desarrollar programa BNPL en Rust
-5. Crear API REST con Node.js
-6. Desarrollar frontend React
-7. Integrar todo el sistema
-8. Escribir tests
-9. Documentar
-10. Desplegar en devnet
-
----
-
-**Nota**: Esta estructura es modular y escalable. Cada componente puede desarrollarse y testearse independientemente.
