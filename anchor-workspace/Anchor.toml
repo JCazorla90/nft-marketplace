@@ -1,0 +1,14 @@
+[workspace]
+members = ["programs/*"]
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[programs.localnet]
+# These will be populated after deploy. Keep as placeholders for local testing.
+bnpl_program = "BnplProgram1111111111111111111111111111111111"
+escrow = "Escrow111111111111111111111111111111111111"
+
+[registry]
+url = "https://anchor.projectserum.com"
