@@ -38,6 +38,7 @@
 - [Documentación](#documentación)
 - [Cómo probar la UI incluida (demo)](#-cómo-probar-la-ui-incluida-demo)
 - [Demo pública en GitHub Pages](#-demo-pública-en-github-pages)
+- [Deployment rápido a GitHub Pages (solo la demo de UI)](#-deployment-rápido-a-github-pages-solo-la-demo-de-ui)
 - [Contribuir](#contribuir)
 - [Licencia](#licencia)
 
@@ -316,6 +317,17 @@ Luego navega a `http://localhost:3000`.
 - Selección de NFT con precios en SOL, rareza, floor y ROI.
 - Configurador BNPL: entrada, número de cuotas, cálculo de cuota y total estimado.
 - Dashboard de seguimiento y alertas tipo toast en modo demo.
+## 🌐 Deployment rápido a GitHub Pages (solo la demo de UI)
+
+1) Prepara el build con la ruta base de tu repo (necesaria para Pages). Si tu repositorio se llama `bnpl-nft-marketplace`, ejecuta:
+```bash
+cd demo-ui
+VITE_BASE_PATH=/bnpl-nft-marketplace/ npm run deploy
+```
+
+2) El script genera `/demo-ui/dist` y publica automáticamente en la rama `gh-pages` usando `gh-pages`. Si prefieres subir manualmente, ejecuta solo `npm run build` y publica `demo-ui/dist/`.
+
+3) En GitHub → Settings → Pages selecciona la rama `gh-pages`. La demo quedará disponible en `https://<tu-usuario>.github.io/<tu-repo>/`.
 
 ## 🎯 Roadmap
 
