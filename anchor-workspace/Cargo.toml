@@ -1,0 +1,9 @@
+[workspace]
+members = [
+  "programs/bnpl_program",
+  "programs/escrow"
+]
+
+[workspace.package]
+# Workspace-level defaults
+edition = "2021"
