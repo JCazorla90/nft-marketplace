@@ -18,15 +18,26 @@
 - ✅ **Multi-entorno** - Devnet, Testnet y Mainnet
 - ✅ **Dashboard completo** - Seguimiento de préstamos y pagos
 
+## 🚨 Estado del repositorio y gaps actuales
+
+- El README describe un monorepo con **backend**, **frontend** y documentación en `docs/`, pero en esta versión del código solo existen el programa Anchor en `programs/bnpl-contract/` y el componente de UI `BNPLNFTMarketplace.jsx`. Los comandos de instalación y la estructura listada no funcionarán hasta que se añadan esos directorios.
+- El workflow `.github/workflows/matrixl.yml` asume carpetas `backend/` y `frontend/` con sus respectivos `package.json`; hoy la tubería fallará al no encontrarlos.
+- El contrato en `programs/bnpl-contract/` tiene un `Cargo.toml` vacío: antes de compilar o desplegar debes completarlo con el `package.name`, dependencias Anchor y versión de Rust.
+- No existe configuración de entorno (`.env.example`) ni migraciones de base de datos; las referencias en la sección de instalación son placeholders.
+- No hay activos listos para publicar en GitHub Pages: la guía de deployment debe generarse a partir de un frontend funcional.
+
 ## 📋 Tabla de Contenidos
 
 - [Arquitectura](#arquitectura)
 - [Tecnologías](#tecnologías)
+- [Estado del repositorio y gaps actuales](#-estado-del-repositorio-y-gaps-actuales)
 - [Instalación](#instalación)
 - [Uso](#uso)
 - [Desarrollo](#desarrollo)
 - [Deployment](#deployment)
 - [Documentación](#documentación)
+- [Cómo probar la UI incluida (demo)](#-cómo-probar-la-ui-incluida-demo)
+- [Deployment rápido a GitHub Pages (solo la demo de UI)](#-deployment-rápido-a-github-pages-solo-la-demo-de-ui)
 - [Contribuir](#contribuir)
 - [Licencia](#licencia)
 
@@ -263,6 +274,63 @@ anchor deploy --provider.cluster mainnet
 - [🎮 Guía de Integración para Juegos](./docs/INTEGRATION.md)
 - [🚀 Guía de Deployment](./docs/DEPLOYMENT.md)
 - [🏗️ Arquitectura](./docs/ARCHITECTURE.md)
+
+## 🧪 Cómo probar la UI incluida (demo)
+
+Si quieres ver rápidamente el componente `BNPLNFTMarketplace.jsx` funcionando, puedes montarlo con Vite + Tailwind mientras se completa el resto del monorepo:
+
+```bash
+# 1) Crear el frontend (solo se necesita Node 18+)
+npm create vite@latest frontend -- --template react
+cd frontend
+
+# 2) Instalar dependencias de la demo
+npm install
+npm install lucide-react
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+
+# 3) Configurar Tailwind (añade estos arrays en tailwind.config.js)
+#   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"]
+#   theme: { extend: {} }, plugins: []
+
+# 4) Habilitar Tailwind en src/index.css
+#   @tailwind base;
+#   @tailwind components;
+#   @tailwind utilities;
+
+# 5) Copiar el componente
+cp ../BNPLNFTMarketplace.jsx src/BNPLNFTMarketplace.jsx
+
+# 6) Usarlo en src/App.jsx
+#   import BNPLNFTMarketplace from "./BNPLNFTMarketplace";
+#   export default function App() { return <BNPLNFTMarketplace />; }
+
+# 7) Ejecutar la demo
+npm run dev
+```
+
+## 🌐 Deployment rápido a GitHub Pages (solo la demo de UI)
+
+1. Dentro de `frontend/`, instala la utilidad de despliegue y define la ruta base para tu repositorio:
+   ```bash
+   npm install --save-dev gh-pages
+   ```
+   - Añade en `vite.config.js`: `base: "/<tu-repo>/"` (por ejemplo, `/bnpl-nft-marketplace/`).
+2. Añade scripts en `package.json`:
+   ```json
+   "scripts": {
+     "predeploy": "npm run build",
+     "deploy": "gh-pages -d dist",
+     "build": "vite build",
+     "dev": "vite"
+   }
+   ```
+3. Genera el build y súbelo a la rama `gh-pages`:
+   ```bash
+   npm run deploy
+   ```
+4. Entra a Settings → Pages en GitHub y selecciona la rama `gh-pages` como fuente. La UI quedará disponible en `https://<tu-usuario>.github.io/<tu-repo>/`.
 
 ## 🎯 Roadmap
 
