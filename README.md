@@ -18,15 +18,26 @@
 - ✅ **Multi-entorno** - Devnet, Testnet y Mainnet
 - ✅ **Dashboard completo** - Seguimiento de préstamos y pagos
 
+## 🚨 Estado del repositorio y gaps actuales
+
+- El README describe un monorepo con **backend**, **frontend** y documentación en `docs/`, pero en esta versión del código solo existen el programa Anchor en `programs/bnpl-contract/` y el componente de UI `BNPLNFTMarketplace.jsx`. Los comandos de instalación y la estructura listada no funcionarán hasta que se añadan esos directorios.
+- El workflow `.github/workflows/matrixl.yml` asume carpetas `backend/` y `frontend/` con sus respectivos `package.json`; hoy la tubería fallará al no encontrarlos.
+- El contrato en `programs/bnpl-contract/` tiene un `Cargo.toml` vacío: antes de compilar o desplegar debes completarlo con el `package.name`, dependencias Anchor y versión de Rust.
+- No existe configuración de entorno (`.env.example`) ni migraciones de base de datos; las referencias en la sección de instalación son placeholders.
+- No hay frontend/backend productivo todavía, pero ahora existe `demo-ui/`, una SPA de React/Tailwind que funciona en local y se puede publicar en GitHub Pages como demo.
+
 ## 📋 Tabla de Contenidos
 
 - [Arquitectura](#arquitectura)
 - [Tecnologías](#tecnologías)
+- [Estado del repositorio y gaps actuales](#-estado-del-repositorio-y-gaps-actuales)
 - [Instalación](#instalación)
 - [Uso](#uso)
 - [Desarrollo](#desarrollo)
 - [Deployment](#deployment)
 - [Documentación](#documentación)
+- [Cómo probar la UI incluida (demo)](#-cómo-probar-la-ui-incluida-demo)
+- [Deployment rápido a GitHub Pages (solo la demo de UI)](#-deployment-rápido-a-github-pages-solo-la-demo-de-ui)
 - [Contribuir](#contribuir)
 - [Licencia](#licencia)
 
@@ -263,6 +274,35 @@ anchor deploy --provider.cluster mainnet
 - [🎮 Guía de Integración para Juegos](./docs/INTEGRATION.md)
 - [🚀 Guía de Deployment](./docs/DEPLOYMENT.md)
 - [🏗️ Arquitectura](./docs/ARCHITECTURE.md)
+
+## 🧪 Cómo probar la UI incluida (demo)
+
+`demo-ui/` ya contiene un frontend funcional con Vite + Tailwind basado en el componente `BNPLNFTMarketplace`. Solo necesitas Node 18+:
+
+```bash
+cd demo-ui
+npm install
+npm run dev -- --host
+```
+
+Abrir en `http://localhost:5173`.
+
+Características de la demo:
+- Simula conexión con Phantom/Solflare (usa modo demo si no detecta la extensión).
+- Calcula cuotas BNPL (down payment, cuotas, interés demo) y las refleja en el dashboard.
+- No envía transacciones en cadena; todo se mantiene en memoria del navegador.
+
+## 🌐 Deployment rápido a GitHub Pages (solo la demo de UI)
+
+1) Prepara el build con la ruta base de tu repo (necesaria para Pages). Si tu repositorio se llama `bnpl-nft-marketplace`, ejecuta:
+```bash
+cd demo-ui
+VITE_BASE_PATH=/bnpl-nft-marketplace/ npm run deploy
+```
+
+2) El script genera `/demo-ui/dist` y publica automáticamente en la rama `gh-pages` usando `gh-pages`. Si prefieres subir manualmente, ejecuta solo `npm run build` y publica `demo-ui/dist/`.
+
+3) En GitHub → Settings → Pages selecciona la rama `gh-pages`. La demo quedará disponible en `https://<tu-usuario>.github.io/<tu-repo>/`.
 
 ## 🎯 Roadmap
 
