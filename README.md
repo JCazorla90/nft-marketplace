@@ -18,10 +18,8 @@
 - ✅ **Multi-entorno** - Devnet, Testnet y Mainnet
 - ✅ **Dashboard completo** - Seguimiento de préstamos y pagos
 
-## 🚨 Estado del repositorio y gaps actuales
 
-- El README describe un monorepo con **backend**, **frontend** y documentación en `docs/`, pero en esta versión del código solo existen el programa Anchor en `programs/bnpl-contract/` y el componente de UI `BNPLNFTMarketplace.jsx`. Los comandos de instalación y la estructura listada no funcionarán hasta que se añadan esos directorios.
-- El workflow `.github/workflows/matrixl.yml` asume carpetas `backend/` y `frontend/` con sus respectivos `package.json`; hoy la tubería fallará al no encontrarlos.
+- El workflow `.github/workflows/matrixl.yml` asume carpetas `backend/` y `frontend/` con sus respectivos `package.json`; hoy la pipeline fallará al no encontrarlos.
 - El contrato en `programs/bnpl-contract/` tiene un `Cargo.toml` vacío: antes de compilar o desplegar debes completarlo con el `package.name`, dependencias Anchor y versión de Rust.
 - No existe configuración de entorno (`.env.example`) ni migraciones de base de datos; las referencias en la sección de instalación son placeholders.
 - No hay frontend/backend productivo todavía, pero ahora existe `demo-ui/`, una SPA de React/Tailwind que funciona en local y se puede publicar en GitHub Pages como demo.
