@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BNPL NFT Marketplace · Demo</title>
+  <link rel="icon" href="https://fav.farm/🪙" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#7C3AED",
+            secondary: "#0EA5E9",
+            card: "#0b1224",
+            border: "#1f2937",
+          },
+          boxShadow: {
+            glow: "0 10px 40px rgba(124, 58, 237, 0.25)",
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://esm.sh" />
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50">
+  <div id="root" class="max-w-6xl mx-auto px-4 py-8"></div>
+  <script type="module">
+    import React, { useMemo, useState, useEffect } from "https://esm.sh/react@18.2.0";
+    import { createRoot } from "https://esm.sh/react-dom@18.2.0/client";
+
+    const wallets = ["Phantom", "Solflare", "Backpack"];
+
+    const mockNfts = [
+      {
+        id: "ronin",
+        name: "Cyber Ronin #144",
+        collection: "Ronin Genesis",
+        rarity: "Mítico",
+        price: 12.4,
+        floor: 14.1,
+        roi: 38,
+        image: "https://i.imgur.com/4ZQZ4dw.png",
+      },
+      {
+        id: "mecha",
+        name: "Mecha Kitsune #72",
+        collection: "Shogun Labs",
+        rarity: "Épico",
+        price: 9.8,
+        floor: 11.0,
+        roi: 24,
+        image: "https://i.imgur.com/4HnB6un.png",
+      },
+      {
+        id: "oni",
+        name: "Oni Runner #05",
+        collection: "Yokai Syndicate",
+        rarity: "Legendario",
+        price: 15.6,
+        floor: 18.9,
+        roi: 41,
+        image: "https://i.imgur.com/87L3I0G.png",
+      },
+    ];
+
+    const Stat = ({ label, value, hint }) => (
+      <div class="bg-card/60 border border-border/60 rounded-xl px-4 py-3">
+        <div class="text-xs uppercase tracking-wide text-slate-400">{label}</div>
+        <div class="text-xl font-semibold text-white">{value}</div>
+        {hint && <div class="text-xs text-slate-500 mt-1">{hint}</div>}
+      </div>
+    );
+
+    const Badge = ({ children }) => (
+      <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-primary/15 text-primary border border-primary/30">
+        {children}
+      </span>
+    );
+
+    function App() {
+      const [selectedNft, setSelectedNft] = useState(mockNfts[0]);
+      const [months, setMonths] = useState(3);
+      const [downPayment, setDownPayment] = useState(25);
+      const [wallet, setWallet] = useState(wallets[0]);
+      const [connected, setConnected] = useState(false);
+      const [toast, setToast] = useState("");
+      const [autoPay, setAutoPay] = useState(true);
+      const [alerts, setAlerts] = useState(true);
+      const [schedule, setSchedule] = useState([]);
+
+      const numbers = useMemo(() => {
+        const price = selectedNft.price;
+        const down = (price * downPayment) / 100;
+        const financed = price - down;
+        const interestRate = 0.12;
+        const totalFinanced = financed * (1 + interestRate);
+        const monthly = totalFinanced / months;
+        const total = down + totalFinanced;
+
+        return {
+          price,
+          down,
+          financed,
+          monthly,
+          total,
+          apr: (interestRate * 100).toFixed(1),
+        };
+      }, [selectedNft, months, downPayment]);
+
+      useEffect(() => {
+        const installments = Array.from({ length: months }).map((_, index) => ({
+          id: index + 1,
+          status: index === 0 ? "Pendiente" : "Programada",
+          amount: numbers.monthly,
+          dueIn: `${index + 1} semana${index === 0 ? "" : "s"}`,
+        }));
+        setSchedule(installments);
+      }, [months, numbers.monthly]);
+
+      useEffect(() => {
+        if (!toast) return;
+        const id = setTimeout(() => setToast(""), 2500);
+        return () => clearTimeout(id);
+      }, [toast]);
+
+      const confirm = () => {
+        if (!connected) {
+          setToast("Conecta una wallet para continuar");
+          return;
+        }
+        setToast("Simulación enviada · revisa tu dashboard");
+      };
+
+      const payNext = () => {
+        if (!connected) {
+          setToast("Necesitas una wallet conectada para pagar");
+          return;
+        }
+        setSchedule((current) => {
+          const nextIndex = current.findIndex((item) => item.status !== "Pagado");
+          if (nextIndex === -1) {
+            setToast("Todo pagado");
+            return current;
+          }
+          const updated = current.map((item, idx) => {
+            if (idx === nextIndex) return { ...item, status: "Pagado" };
+            if (idx === nextIndex + 1 && item.status === "Programada") {
+              return { ...item, status: "Pendiente" };
+            }
+            return item;
+          });
+          setToast("Pago simulado correctamente");
+          return updated;
+        });
+      };
+
+      const progress = useMemo(() => {
+        if (!schedule.length) return 0;
+        const paid = schedule.filter((s) => s.status === "Pagado").length;
+        return Math.round((paid / schedule.length) * 100);
+      }, [schedule]);
+
+      return (
+        <div class="space-y-8">
+          <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <p class="text-sm text-slate-400">Demo UX · Buy Now, Pay Later para NFTs en Solana</p>
+              <h1 class="text-3xl font-bold">BNPL NFT Marketplace</h1>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <select
+                class="bg-card border border-border/70 rounded-lg px-3 py-2 text-sm"
+                value={wallet}
+                onChange={(e) => setWallet(e.target.value)}
+              >
+                {wallets.map((w) => (
+                  <option key={w}>{w}</option>
+                ))}
+              </select>
+              <button
+                onClick={() => setConnected((v) => !v)}
+                class={`px-4 py-2 rounded-lg text-sm font-semibold shadow-glow transition-colors ${
+                  connected
+                    ? "bg-green-500/90 text-black"
+                    : "bg-primary text-white hover:bg-primary/90"
+                }`}
+              >
+                {connected ? "Wallet conectada" : "Conectar wallet"}
+              </button>
+            </div>
+          </header>
+
+          <div class="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+            <section class="space-y-4">
+              <div class="bg-card/60 border border-border/60 rounded-2xl p-5 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <p class="text-sm text-slate-400">Colecciones destacadas</p>
+                    <h2 class="text-2xl font-semibold">Elige tu NFT</h2>
+                  </div>
+                  <Badge>BNPL listo</Badge>
+                </div>
+                <div class="grid gap-4 md:grid-cols-3">
+                  {mockNfts.map((nft) => (
+                    <button
+                      key={nft.id}
+                      onClick={() => setSelectedNft(nft)}
+                      class={`relative text-left rounded-xl border transition-all hover:scale-[1.01] ${
+                        selectedNft.id === nft.id
+                          ? "border-primary/70 bg-primary/10 shadow-glow"
+                          : "border-border/60 bg-card/60"
+                      }`}
+                    >
+                      <img
+                        src={nft.image}
+                        alt={nft.name}
+                        class="w-full aspect-square object-cover rounded-t-xl"
+                      />
+                      <div class="p-3 space-y-2">
+                        <div class="flex items-center justify-between">
+                          <div>
+                            <p class="text-xs text-slate-400">{nft.collection}</p>
+                            <p class="font-semibold">{nft.name}</p>
+                          </div>
+                          <Badge>{nft.rarity}</Badge>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                          <span class="text-white font-semibold">{nft.price} ◎</span>
+                          <span class="text-emerald-400">+{nft.roi}% ROI</span>
+                        </div>
+                        <div class="text-xs text-slate-400">Floor: {nft.floor} ◎</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div class="bg-card/60 border border-border/60 rounded-2xl p-5 grid gap-5 md:grid-cols-3">
+                <Stat label="Precio" value={`${numbers.price.toFixed(2)} ◎`} hint="Lista del vendedor" />
+                <Stat label="Entrada" value={`${numbers.down.toFixed(2)} ◎`} hint={`${downPayment}% inicial`} />
+                <Stat label="Cuota mensual" value={`${numbers.monthly.toFixed(2)} ◎`} hint={`${months} pagos | APR ${numbers.apr}%`} />
+              </div>
+            </section>
+
+            <section class="bg-card/60 border border-border/60 rounded-2xl p-5 space-y-5 shadow-lg">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-slate-400">Plan BNPL</p>
+                  <h2 class="text-xl font-semibold">Configura tu plan</h2>
+                </div>
+                <Badge>{selectedNft.collection}</Badge>
+              </div>
+
+              <div class="space-y-4">
+                <label class="text-sm text-slate-300 flex items-center justify-between">
+                  Entrada (% del precio)
+                  <span class="text-white font-semibold">{downPayment}%</span>
+                </label>
+                <input
+                  type="range"
+                  min="10"
+                  max="60"
+                  step="5"
+                  value={downPayment}
+                  onChange={(e) => setDownPayment(parseInt(e.target.value, 10))}
+                  class="w-full accent-primary"
+                />
+
+                <label class="text-sm text-slate-300 flex items-center justify-between">
+                  Número de cuotas
+                  <span class="text-white font-semibold">{months} meses</span>
+                </label>
+                <input
+                  type="range"
+                  min="2"
+                  max="9"
+                  value={months}
+                  onChange={(e) => setMonths(parseInt(e.target.value, 10))}
+                  class="w-full accent-secondary"
+                />
+              </div>
+
+              <div class="bg-black/20 border border-border/70 rounded-xl p-4 space-y-3">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-slate-400">Total financiado</p>
+                    <p class="text-2xl font-semibold">{numbers.financed.toFixed(2)} ◎</p>
+                  </div>
+                  <div class="text-right text-sm text-slate-400">
+                    <p>APR demo: {numbers.apr}%</p>
+                    <p>Pagos: {months} meses</p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div class="p-3 rounded-lg bg-primary/10 border border-primary/30">
+                    <p class="text-slate-300">Pagar ahora</p>
+                    <p class="text-lg font-semibold text-white">{numbers.down.toFixed(2)} ◎</p>
+                  </div>
+                  <div class="p-3 rounded-lg bg-secondary/10 border border-secondary/30">
+                    <p class="text-slate-300">Pagar en cuotas</p>
+                    <p class="text-lg font-semibold text-white">{numbers.monthly.toFixed(2)} ◎</p>
+                    <p class="text-xs text-slate-400">mensuales</p>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-sm text-slate-300">
+                  <span>Total estimado</span>
+                  <span class="text-white font-semibold">{numbers.total.toFixed(2)} ◎</span>
+                </div>
+              </div>
+
+              <div class="space-y-3 text-sm text-slate-300">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                  Custodia segura del NFT hasta completar pagos
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                  Recordatorios automáticos de cobro
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                  Simulación local, no firma transacciones reales
+                </div>
+                <label class="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={alerts}
+                    onChange={() => setAlerts((v) => !v)}
+                    class="accent-primary"
+                  />
+                  Alertas por correo y push
+                </label>
+                <label class="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={autoPay}
+                    onChange={() => setAutoPay((v) => !v)}
+                    class="accent-secondary"
+                  />
+                  Autopay activado (debito automático)
+                </label>
+              </div>
+
+              <div class="flex gap-3">
+                <button
+                  onClick={confirm}
+                  class="flex-1 px-4 py-3 rounded-xl font-semibold bg-primary text-white hover:bg-primary/90 shadow-glow transition-colors"
+                >
+                  Confirmar plan BNPL
+                </button>
+                <button
+                  onClick={() => setToast("Guardado en borradores" )}
+                  class="px-4 py-3 rounded-xl font-semibold border border-border/70 bg-black/30 text-white hover:border-primary/50"
+                >
+                  Guardar
+                </button>
+                <button
+                  onClick={payNext}
+                  class="px-4 py-3 rounded-xl font-semibold border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
+                >
+                  Pagar próxima cuota
+                </button>
+              </div>
+            </section>
+          </div>
+
+          <section class="bg-card/60 border border-border/60 rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-slate-400">Monitoreo</p>
+                <h2 class="text-xl font-semibold">Dashboard en vivo</h2>
+              </div>
+              <Badge>Modo demo</Badge>
+            </div>
+            <div class="grid gap-4 md:grid-cols-4 mt-4">
+              <Stat label="Wallet" value={connected ? wallet : "Desconectada"} hint="Simulada" />
+              <Stat label="Colección" value={selectedNft.collection} hint={selectedNft.name} />
+              <Stat label="Progreso" value={`${progress}%`} hint={`${schedule.length} cuotas`} />
+              <Stat label="Riesgo" value={progress > 60 ? "Muy bajo" : "Bajo"} hint={autoPay ? "Autopay activo" : "Manual"} />
+            </div>
+
+            <div class="mt-6 grid gap-3 md:grid-cols-3 text-sm">
+              <div class="p-4 rounded-xl bg-black/30 border border-border/60">
+                <p class="text-slate-400">Estado del pago inicial</p>
+                <p class="text-lg font-semibold text-white">{numbers.down.toFixed(2)} ◎ listo</p>
+              </div>
+              <div class="p-4 rounded-xl bg-black/30 border border-border/60">
+                <p class="text-slate-400">Interés estimado</p>
+                <p class="text-lg font-semibold text-white">APR {numbers.apr}%</p>
+              </div>
+              <div class="p-4 rounded-xl bg-black/30 border border-border/60">
+                <p class="text-slate-400">Alertas</p>
+                <p class="text-lg font-semibold text-white">{alerts ? "Activadas" : "Silenciadas"}</p>
+              </div>
+            </div>
+
+            <div class="mt-6">
+              <p class="text-sm text-slate-400 mb-2">Calendario de cuotas</p>
+              <div class="grid gap-3 md:grid-cols-3">
+                {schedule.map((item) => (
+                  <div
+                    key={item.id}
+                    class={`p-4 rounded-xl border transition-colors ${
+                      item.status === "Pagado"
+                        ? "border-emerald-400/40 bg-emerald-400/10"
+                        : item.status === "Pendiente"
+                        ? "border-primary/40 bg-primary/5"
+                        : "border-border/60 bg-black/20"
+                    }`}
+                  >
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-slate-300">Cuota {item.id}</span>
+                      <Badge>{item.status}</Badge>
+                    </div>
+                    <p class="text-lg font-semibold mt-2">{item.amount.toFixed(2)} ◎</p>
+                    <p class="text-xs text-slate-400">Vence en {item.dueIn}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {toast && (
+            <div class="fixed bottom-6 right-6 bg-card border border-primary/40 text-white px-4 py-3 rounded-xl shadow-glow">
+              {toast}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
