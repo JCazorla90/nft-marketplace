@@ -18,17 +18,26 @@
 - ✅ **Multi-entorno** - Devnet, Testnet y Mainnet
 - ✅ **Dashboard completo** - Seguimiento de préstamos y pagos
 
+## 🚨 Estado del repositorio y gaps actuales
+
+- El README describe un monorepo con **backend**, **frontend** y documentación en `docs/`, pero en esta versión del código solo existen el programa Anchor en `programs/bnpl-contract/` y el componente de UI `BNPLNFTMarketplace.jsx`. Los comandos de instalación y la estructura listada no funcionarán hasta que se añadan esos directorios.
+- El workflow `.github/workflows/matrixl.yml` asume carpetas `backend/` y `frontend/` con sus respectivos `package.json`; hoy la tubería fallará al no encontrarlos.
+- El contrato en `programs/bnpl-contract/` tiene un `Cargo.toml` vacío: antes de compilar o desplegar debes completarlo con el `package.name`, dependencias Anchor y versión de Rust.
+- No existe configuración de entorno (`.env.example`) ni migraciones de base de datos; las referencias en la sección de instalación son placeholders.
+- No hay frontend/backend productivo todavía, pero ahora existe `demo-ui/`, una SPA de React/Tailwind que funciona en local y se puede publicar en GitHub Pages como demo.
 
 ## 📋 Tabla de Contenidos
 
 - [Arquitectura](#arquitectura)
 - [Tecnologías](#tecnologías)
+- [Estado del repositorio y gaps actuales](#-estado-del-repositorio-y-gaps-actuales)
 - [Instalación](#instalación)
 - [Uso](#uso)
 - [Desarrollo](#desarrollo)
 - [Deployment](#deployment)
 - [Documentación](#documentación)
 - [Cómo probar la UI incluida (demo)](#-cómo-probar-la-ui-incluida-demo)
+- [Demo pública en GitHub Pages](#-demo-pública-en-github-pages)
 - [Deployment rápido a GitHub Pages (solo la demo de UI)](#-deployment-rápido-a-github-pages-solo-la-demo-de-ui)
 - [Contribuir](#contribuir)
 - [Licencia](#licencia)
@@ -279,11 +288,35 @@ npm run dev -- --host
 
 Abrir en `http://localhost:5173`.
 
+> Si quieres una demo sin instalar dependencias, abre directamente [`docs/index.html`](./docs/index.html) o usa la publicación en GitHub Pages descrita abajo.
+
 Características de la demo:
 - Simula conexión con Phantom/Solflare (usa modo demo si no detecta la extensión).
 - Calcula cuotas BNPL (down payment, cuotas, interés demo) y las refleja en el dashboard.
 - No envía transacciones en cadena; todo se mantiene en memoria del navegador.
 
+## 🌐 Demo pública en GitHub Pages
+
+El repositorio ya puede publicarse directamente desde la carpeta `/docs`, sin build ni dependencias. Solo sube los cambios a la rama configurada en Pages y visita la URL.
+
+### Cómo publicarla
+1. Asegúrate de que GitHub Pages está apuntando a `main` (o la rama que uses) con la carpeta `/docs`.
+2. Haz commit y push de este repositorio.
+3. Abre `https://<tu-usuario>.github.io/<tu-repo>/` para ver la demo.
+
+### Probarla en local
+- Abre `docs/index.html` en tu navegador, o bien:
+```bash
+npx serve docs
+```
+Luego navega a `http://localhost:3000`.
+
+### Qué incluye la demo
+- UI React (via `esm.sh`) con Tailwind desde CDN, sin pasos de compilación.
+- Selector de wallet (Phantom, Solflare, Backpack) y botón de conexión simulado.
+- Selección de NFT con precios en SOL, rareza, floor y ROI.
+- Configurador BNPL: entrada, número de cuotas, cálculo de cuota y total estimado.
+- Dashboard de seguimiento y alertas tipo toast en modo demo.
 ## 🌐 Deployment rápido a GitHub Pages (solo la demo de UI)
 
 1) Prepara el build con la ruta base de tu repo (necesaria para Pages). Si tu repositorio se llama `bnpl-nft-marketplace`, ejecuta:
