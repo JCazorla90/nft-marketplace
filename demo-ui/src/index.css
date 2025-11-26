@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply font-sans bg-slate-950 text-slate-50;
+}
+
+.gradient-bg {
+  background: radial-gradient(circle at 20% 20%, rgba(168, 85, 247, 0.2), transparent 25%),
+    radial-gradient(circle at 80% 0%, rgba(59, 130, 246, 0.2), transparent 25%),
+    radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.15), transparent 25%),
+    linear-gradient(120deg, #0b1021 0%, #0f172a 50%, #0b1021 100%);
+}
+
+.glass {
+  @apply bg-slate-900/70 border border-white/10 backdrop-blur;
+}
+
+.cta-button {
+  @apply bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-semibold rounded-xl;
+}
+
+.secondary-button {
+  @apply border border-white/10 hover:border-white/30 text-white rounded-xl;
+}

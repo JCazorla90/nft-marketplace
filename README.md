@@ -24,7 +24,7 @@
 - El workflow `.github/workflows/matrixl.yml` asume carpetas `backend/` y `frontend/` con sus respectivos `package.json`; hoy la tubería fallará al no encontrarlos.
 - El contrato en `programs/bnpl-contract/` tiene un `Cargo.toml` vacío: antes de compilar o desplegar debes completarlo con el `package.name`, dependencias Anchor y versión de Rust.
 - No existe configuración de entorno (`.env.example`) ni migraciones de base de datos; las referencias en la sección de instalación son placeholders.
-- No hay activos listos para publicar en GitHub Pages: la guía de deployment debe generarse a partir de un frontend funcional.
+- No hay frontend/backend productivo todavía, pero ahora existe `demo-ui/`, una SPA de React/Tailwind que funciona en local y se puede publicar en GitHub Pages como demo.
 
 ## 📋 Tabla de Contenidos
 
@@ -277,60 +277,32 @@ anchor deploy --provider.cluster mainnet
 
 ## 🧪 Cómo probar la UI incluida (demo)
 
-Si quieres ver rápidamente el componente `BNPLNFTMarketplace.jsx` funcionando, puedes montarlo con Vite + Tailwind mientras se completa el resto del monorepo:
+`demo-ui/` ya contiene un frontend funcional con Vite + Tailwind basado en el componente `BNPLNFTMarketplace`. Solo necesitas Node 18+:
 
 ```bash
-# 1) Crear el frontend (solo se necesita Node 18+)
-npm create vite@latest frontend -- --template react
-cd frontend
-
-# 2) Instalar dependencias de la demo
+cd demo-ui
 npm install
-npm install lucide-react
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-
-# 3) Configurar Tailwind (añade estos arrays en tailwind.config.js)
-#   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"]
-#   theme: { extend: {} }, plugins: []
-
-# 4) Habilitar Tailwind en src/index.css
-#   @tailwind base;
-#   @tailwind components;
-#   @tailwind utilities;
-
-# 5) Copiar el componente
-cp ../BNPLNFTMarketplace.jsx src/BNPLNFTMarketplace.jsx
-
-# 6) Usarlo en src/App.jsx
-#   import BNPLNFTMarketplace from "./BNPLNFTMarketplace";
-#   export default function App() { return <BNPLNFTMarketplace />; }
-
-# 7) Ejecutar la demo
-npm run dev
+npm run dev -- --host
 ```
+
+Abrir en `http://localhost:5173`.
+
+Características de la demo:
+- Simula conexión con Phantom/Solflare (usa modo demo si no detecta la extensión).
+- Calcula cuotas BNPL (down payment, cuotas, interés demo) y las refleja en el dashboard.
+- No envía transacciones en cadena; todo se mantiene en memoria del navegador.
 
 ## 🌐 Deployment rápido a GitHub Pages (solo la demo de UI)
 
-1. Dentro de `frontend/`, instala la utilidad de despliegue y define la ruta base para tu repositorio:
-   ```bash
-   npm install --save-dev gh-pages
-   ```
-   - Añade en `vite.config.js`: `base: "/<tu-repo>/"` (por ejemplo, `/bnpl-nft-marketplace/`).
-2. Añade scripts en `package.json`:
-   ```json
-   "scripts": {
-     "predeploy": "npm run build",
-     "deploy": "gh-pages -d dist",
-     "build": "vite build",
-     "dev": "vite"
-   }
-   ```
-3. Genera el build y súbelo a la rama `gh-pages`:
-   ```bash
-   npm run deploy
-   ```
-4. Entra a Settings → Pages en GitHub y selecciona la rama `gh-pages` como fuente. La UI quedará disponible en `https://<tu-usuario>.github.io/<tu-repo>/`.
+1) Prepara el build con la ruta base de tu repo (necesaria para Pages). Si tu repositorio se llama `bnpl-nft-marketplace`, ejecuta:
+```bash
+cd demo-ui
+VITE_BASE_PATH=/bnpl-nft-marketplace/ npm run deploy
+```
+
+2) El script genera `/demo-ui/dist` y publica automáticamente en la rama `gh-pages` usando `gh-pages`. Si prefieres subir manualmente, ejecuta solo `npm run build` y publica `demo-ui/dist/`.
+
+3) En GitHub → Settings → Pages selecciona la rama `gh-pages`. La demo quedará disponible en `https://<tu-usuario>.github.io/<tu-repo>/`.
 
 ## 🎯 Roadmap
 
